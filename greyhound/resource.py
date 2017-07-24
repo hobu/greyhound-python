@@ -10,18 +10,18 @@ import struct
 
 from . import box
 
+from . import server
+
 class Resource(object):
 
-    def __init__(self, server, name):
-        self.server = server
+    def __init__(self, base, name):
+
+        self.server = server.Server(base)
+        self.base = base
         self.name = name
+        self.url = self.server.get_url(self.name)
         self.info = self.get_info()
 
-    def get_url(self):
-        url = self.server.url+"resource/"+self.name
-        return url
-
-    url = property(get_url)
 
     def get_info(self, data=None):
 
@@ -51,7 +51,6 @@ class Resource(object):
             data = u.read()
         j = json.loads(data)
         j['dtype'] = buildNumpyDescription(j['schema'])
-
         return j
 
 

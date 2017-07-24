@@ -22,7 +22,8 @@ class Box(object):
         self.maxz = maxz
 
     def get_url(self):
-        box = '['+ ','.join([str(i) for i in [self.minx, self.miny, self.minz, self.maxx, self.maxy, self.maxz]]) + ']'
+        #box = '['+ ','.join([str(i) for i in [self.minx, self.miny, self.minz, self.maxx, self.maxy, self.maxz]]) + ']'
+        box = '['+ ','.join([str(i) for i in [self.minx, self.miny, self.maxx, self.maxy]]) + ']'
         return box
 
 
