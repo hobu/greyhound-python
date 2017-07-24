@@ -1,6 +1,6 @@
 
 
-import resource
+from . import resource
 
 class Server(object):
 

@@ -1,7 +1,3 @@
-import urllib2
-import numpy as np
-import json
-import struct
 import laspy
 
 def writeLASfile(data, filename):

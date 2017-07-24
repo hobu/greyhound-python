@@ -1,9 +1,14 @@
 
 import numpy as np
-import urllib2
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
+
 import json
-import box
 import struct
+
+from . import box
 
 class Resource(object):
 
@@ -18,7 +23,7 @@ class Resource(object):
 
     url = property(get_url)
 
-    def get_info(self):
+    def get_info(self, data=None):
 
         def buildNumpyDescription(schema):
             output = {}
@@ -40,9 +45,10 @@ class Resource(object):
             output['names'] = names
             return output
 
-        command = self.url + "/info"
-        u = urllib2.urlopen(command)
-        data = u.read()
+        if not data:
+            command = self.url + "/info"
+            u = urlopen(command)
+            data = u.read()
         j = json.loads(data)
         j['dtype'] = buildNumpyDescription(j['schema'])
 
@@ -50,16 +56,33 @@ class Resource(object):
 
 
     def read(self, bounds, depthBegin, depthEnd, compress=False):
+        import lazperf
+        import json
+        import numpy as np
 
+        compressed = 'false'
+        if compress:
+            compressed = 'true'
         command = self.url + '/read?'
-        command += 'bounds=%s&depthEnd=%d&depthBegin=%d&compress=false' % (bounds.url, depthEnd, depthBegin)
-        u = urllib2.urlopen(command)
+        command += 'bounds=%s&depthEnd=%d&depthBegin=%d&compress=%s' % (bounds.url, depthEnd, depthBegin, compressed)
+        u = urlopen(command)
         data = u.read()
 
         # last four bytes are the point count
         count = struct.unpack('<L',data[-4:])[0]
-        array = np.ndarray(shape=(count,),buffer=data,dtype=self.info['dtype'])
-        return array
 
+        if compress:
+            arr = np.frombuffer(data[:-4], dtype=np.uint8)
+            schema = self.info['schema']
+            s = json.dumps(schema)
+            dt = lazperf.buildNumpyDescription(s)
+            d = lazperf.Decompressor(arr, s)
+            output = np.zeros(count * dt.itemsize, dtype=np.uint8)
+            decompressed = d.decompress(output)
+            array = np.ndarray(shape=(count,),buffer=decompressed,dtype=dt)
+        else:
+
+            array = np.ndarray(shape=(count,),buffer=data,dtype=self.info['dtype'])
+        return array
 
 

@@ -1,30 +1,7 @@
 #!/usr/bin/env python
 
-# Two environmental variables influence this script.
-#
-# GDAL_CONFIG: the path to a gdal-config program that points to GDAL headers,
-# libraries, and data files.
-#
-# PACKAGE_DATA: if defined, GDAL and PROJ4 data files will be copied into the
-# source or binary distribution. This is essential when creating self-contained
-# binary wheels.
-
-import itertools
-import logging
-import os
-import pprint
-import shutil
-import subprocess
-import sys
-
 from setuptools import setup
 from setuptools.extension import Extension
-
-
-logging.basicConfig()
-log = logging.getLogger()
-
-
 
 # Parse the version from the greyhound module.
 with open('greyhound/__init__.py') as f:
@@ -43,7 +20,7 @@ with open('README.rst') as f:
     readme = f.read()
 
 # Runtime requirements.
-inst_reqs = ['mapbox', 'laspy', 'numpy', ]
+inst_reqs = ['laspy', 'lazperf']
 
 setup_args = dict(
     name='greyhound',
